@@ -1,0 +1,180 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Reading Pace Calculator (Madwoman's Library Book Club)</title>
+  <style>
+    :root{ --bg:#0b0f13; --panel:#0f1418; --muted:#9aa3ad; --accent:#70eab5; }
+
+    *{ box-sizing:border-box; }
+
+    body{margin:0; background:var(--bg); color:#e8eff2; display:flex; justify-content:center; padding:30px; font-family:Inter,system-ui;}
+    .container{width:100%; max-width:760px;display:flex;flex-direction:column;align-items:center;}
+    h1{margin:0 0 6px 0; font-size:20px}
+    p.lead{margin:0 0 20px; color:var(--muted); font-size:13px}
+
+    .card{background:var(--panel); padding:18px; border-radius:12px; box-shadow:0 8px 24px rgba(0,0,0,0.45); width:100%; max-width:400px;}    
+    label{font-size:13px; color:var(--muted)}
+    input{width:100%; background:#0d1117; border:1px solid #202830; color:#dce6eb; padding:10px; border-radius:8px; margin-top:6px; margin-bottom:12px; font-size:14px}
+
+    button{background:#1a232c; border:1px solid #2b333e; color:#d0dde3; padding:9px 12px; font-size:13px; border-radius:8px; cursor:pointer; white-space:nowrap}
+    button.primary{background:var(--accent); color:#041414; border:none; font-weight:600}
+    button:disabled{opacity:0.45; cursor:default}
+
+    .row{display:flex; gap:8px; flex-wrap:wrap; margin-bottom:12px}
+    .timer-display{font-size:20px; font-weight:700; text-align:center; margin:10px 0}
+
+    .results{margin-top:12px; border-top:1px solid #162022; padding-top:14px; display:flex; flex-direction:column; gap:10px; align-items:flex-start}
+    .result{display:flex; justify-content:space-between; width:100%; font-size:14px; gap:10px}
+    .label{color:var(--muted)}
+    .value{font-weight:700; min-width:80px; text-align:right}
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Reading Pace Calculator</h1>
+    <p class="lead">Madwoman's Library Book Club</p>
+
+    <div class="card">
+      <!-- TIMER -->
+      <label>Reading timer</label>
+      <div class="timer-display" id="timerDisplay">00:00</div>
+      <div class="row">
+        <button id="startBtn">Start</button>
+        <button id="pauseBtn" disabled>Pause</button>
+        <button id="stopBtn" class="primary" disabled>Stop & Use Sample</button>
+        <button id="restartBtn" disabled>Restart</button>
+      </div>
+
+      <!-- INPUTS -->
+      <label>Pages read during timer</label>
+      <input id="samplePages" type="number" min="1" placeholder="e.g. 5" />
+
+      <label>Total pages in book</label>
+      <input id="totalPages" type="number" min="1" placeholder="e.g. 350" />
+
+      <label>Pages already read</label>
+      <input id="pagesRead" type="number" min="0" placeholder="e.g. 48" />
+
+      <label>Days to finish</label>
+      <input id="daysToFinish" type="number" min="1" placeholder="e.g. 15" />
+
+      <div style="margin-top:8px; display:flex; gap:8px;">
+        <button id="calcBtn" class="primary">Calculate</button>
+        <button id="clearBtn">Clear</button>
+      </div>
+
+      <!-- RESULTS -->
+      <div class="results" aria-live="polite">
+        <div class="result"><div class="label">Time per day</div><div id="timePerDay" class="value">—</div></div>
+        <div class="result"><div class="label">Pages per day</div><div id="pagesPerDay" class="value">—</div></div>
+      </div>
+
+    </div>
+  </div>
+
+  <script>
+    const $ = id => document.getElementById(id);
+
+    let startTs = null;
+    let elapsedMs = 0;
+    let running = false;
+
+    function formatClock(ms){
+      const totalSec = Math.floor(ms/1000);
+      const m = Math.floor(totalSec/60);
+      const s = totalSec % 60;
+      return `${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+    }
+    function currentElapsedMs(){
+      return elapsedMs + (running && startTs ? (Date.now() - startTs) : 0);
+    }
+
+    $('startBtn').addEventListener('click', ()=>{
+      if(running) return;
+      startTs = Date.now(); running = true;
+      $('pauseBtn').disabled = false;
+      $('stopBtn').disabled = false;
+      $('restartBtn').disabled = false;
+      $('startBtn').disabled = true;
+      tick();
+      window._interval = setInterval(tick, 250);
+    });
+
+    $('pauseBtn').addEventListener('click', ()=>{
+      if(!running) return;
+      elapsedMs += Date.now() - startTs;
+      running = false; startTs = null;
+      $('startBtn').disabled = false;
+      $('pauseBtn').disabled = true;
+      clearInterval(window._interval);
+      tick();
+    });
+
+    $('stopBtn').addEventListener('click', ()=>{
+      if(running){ elapsedMs += Date.now() - startTs; running = false; startTs = null; }
+      $('startBtn').disabled = false;
+      $('pauseBtn').disabled = true;
+      $('stopBtn').disabled = true;
+      clearInterval(window._interval);
+      tick();
+      $('samplePages').focus();
+    });
+
+    $('restartBtn').addEventListener('click', ()=>{
+      clearInterval(window._interval);
+      running = false; startTs = null; elapsedMs = 0;
+      $('timerDisplay').textContent = '00:00';
+      $('samplePages').value = '';
+      $('pauseBtn').disabled = true;
+      $('stopBtn').disabled = true;
+      $('restartBtn').disabled = true;
+      $('startBtn').disabled = false;
+    });
+
+    function tick(){ $('timerDisplay').textContent = formatClock(currentElapsedMs()); }
+
+    function formatMinutesAsHours(min){
+      if(!min || min <= 0) return '—';
+      if(min <= 60) return `${Math.round(min)} min/day`;
+      const t = Math.round(min);
+      return `${Math.floor(t/60)} h ${t%60} min/day`;
+    }
+
+    $('calcBtn').addEventListener('click', ()=>{
+      const samplePages = parseFloat($('samplePages').value);
+      const totalPages = parseInt($('totalPages').value);
+      const pagesRead = parseInt($('pagesRead').value) || 0;
+      const days = parseInt($('daysToFinish').value);
+
+      const elapsedSeconds = Math.floor(currentElapsedMs()/1000);
+
+      if(!samplePages || samplePages<=0){ alert('Enter pages read during timer.'); $('samplePages').focus(); return; }
+      if(elapsedSeconds<=0){ alert('Run the timer for a sample.'); return; }
+      if(!totalPages||totalPages<=0){ alert('Enter total pages.'); $('totalPages').focus(); return; }
+      if(pagesRead<0||pagesRead>=totalPages){ alert('Pages already read must be >=0 and < total pages'); return; }
+      if(!days||days<1){ alert('Enter number of days.'); $('daysToFinish').focus(); return; }
+
+      const pagesRemaining = totalPages - pagesRead;
+      const minutesSample = elapsedSeconds / 60;
+      const pagesPerMin = samplePages / minutesSample;
+      const totalMinutes = pagesRemaining / pagesPerMin;
+      const minDay = totalMinutes / days;
+      const pagesDay = pagesRemaining / days;
+
+      $('timePerDay').textContent = formatMinutesAsHours(minDay);
+      $('pagesPerDay').textContent = `${Math.ceil(pagesDay)} pages/day`;
+    });
+
+    $('clearBtn').addEventListener('click', ()=>{
+      clearInterval(window._interval);
+      running=false; startTs=null; elapsedMs=0;
+      $('timerDisplay').textContent='00:00';
+      ['samplePages','totalPages','pagesRead','daysToFinish'].forEach(id=>$(id).value='');
+      $('timePerDay').textContent='—'; $('pagesPerDay').textContent='—';
+      $('startBtn').disabled=false; $('pauseBtn').disabled=true; $('stopBtn').disabled=true; $('restartBtn').disabled=true;
+    });
+  </script>
+</body>
+</html>
