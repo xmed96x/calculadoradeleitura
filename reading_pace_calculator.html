@@ -2,6 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="utf-8" />
+   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Reading Pace Calculator (Madwoman's Library Book Club)</title>
   <style>
@@ -33,42 +34,42 @@
 </head>
 <body>
   <div class="container">
-    <h1>Reading Pace Calculator</h1>
-    <p class="lead">Madwoman's Library Book Club</p>
+    <h1>Calculadora de Leitura</h1>
+    <p class="lead">by xmed96x</p>
 
     <div class="card">
       <!-- TIMER -->
-      <label>Reading timer</label>
+      <label>Timer de leitura</label>
       <div class="timer-display" id="timerDisplay">00:00</div>
       <div class="row">
-        <button id="startBtn">Start</button>
-        <button id="pauseBtn" disabled>Pause</button>
-        <button id="stopBtn" class="primary" disabled>Stop & Use Sample</button>
-        <button id="restartBtn" disabled>Restart</button>
+        <button id="startBtn">Começar</button>
+        <button id="pauseBtn" disabled>Pausar</button>
+        <button id="stopBtn" class="primary" disabled>Parar</button>
+        <button id="restartBtn" disabled>Recomeçar</button>
       </div>
 
       <!-- INPUTS -->
-      <label>Pages read during timer</label>
-      <input id="samplePages" type="number" min="1" placeholder="e.g. 5" />
+      <label>Paginas lidas durante o timer</label>
+      <input id="samplePages" type="number" min="1" placeholder="ex. 5" />
 
-      <label>Total pages in book</label>
-      <input id="totalPages" type="number" min="1" placeholder="e.g. 350" />
+      <label>Total de páginas do livro</label>
+      <input id="totalPages" type="number" min="1" placeholder="ex. 350" />
 
-      <label>Pages already read</label>
-      <input id="pagesRead" type="number" min="0" placeholder="e.g. 48" />
+      <label>Páginas já lidas</label>
+      <input id="pagesRead" type="number" min="0" placeholder="ex. 15" />
 
-      <label>Days to finish</label>
-      <input id="daysToFinish" type="number" min="1" placeholder="e.g. 15" />
+      <label>Quer terminar de ler em quantos dias?</label>
+      <input id="daysToFinish" type="number" min="1" placeholder="ex. 10" />
 
       <div style="margin-top:8px; display:flex; gap:8px;">
-        <button id="calcBtn" class="primary">Calculate</button>
-        <button id="clearBtn">Clear</button>
+        <button id="calcBtn" class="primary">Calcular</button>
+        <button id="clearBtn">Apagar</button>
       </div>
 
       <!-- RESULTS -->
       <div class="results" aria-live="polite">
-        <div class="result"><div class="label">Time per day</div><div id="timePerDay" class="value">—</div></div>
-        <div class="result"><div class="label">Pages per day</div><div id="pagesPerDay" class="value">—</div></div>
+        <div class="result"><div class="label">Tempo por dia</div><div id="Tempo/dia" class="value">—</div></div>
+        <div class="result"><div class="label">Páginas por dia</div><div id="Páginas/dia" class="value">—</div></div>
       </div>
 
     </div>
