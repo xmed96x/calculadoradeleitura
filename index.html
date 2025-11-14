@@ -137,39 +137,36 @@
     function tick(){ $('timerDisplay').textContent = formatClock(currentElapsedMs()); }
 
     function formatMinutesAsHours(min){
-      if(!min || min <= 0) return '—';
-      if(min <= 60) return `${Math.round(min)} min/dia`;
-      const t = Math.round(min);
-      return `${Math.floor(t/60)} h ${t%60} min/dia`;
-    }
+  if(!min || min <= 0) return '—';
+  if(min <= 60) return `${Math.round(min)} min/dia`;
+  const t = Math.round(min);
+  return `${Math.floor(t/60)} h ${t%60} min/dia`;
+}
 
-$('pagesPerDay').textContent = `${Math.ceil(pagesDay)} páginas/dia`;
+$('calcBtn').addEventListener('click', ()=>{
+  const samplePages = parseFloat($('samplePages').value);
+  const totalPages = parseInt($('totalPages').value);
+  const pagesRead = parseInt($('pagesRead').value) || 0;
+  const days = parseInt($('daysToFinish').value);
 
+  const elapsedSeconds = Math.floor(currentElapsedMs()/1000);
 
-    $('calcBtn').addEventListener('click', ()=>{
-      const samplePages = parseFloat($('samplePages').value);
-      const totalPages = parseInt($('totalPages').value);
-      const pagesRead = parseInt($('pagesRead').value) || 0;
-      const days = parseInt($('daysToFinish').value);
+  if(!samplePages || samplePages<=0){ alert('Digite as páginas lidas durante o timer.'); $('samplePages').focus(); return; }
+  if(elapsedSeconds<=0){ alert('Execute o timer para ter uma amostra.'); return; }
+  if(!totalPages||totalPages<=0){ alert('Digite o total de páginas.'); $('totalPages').focus(); return; }
+  if(pagesRead<0||pagesRead>=totalPages){ alert('Páginas já lidas devem ser >=0 e < total.'); return; }
+  if(!days||days<1){ alert('Digite o número de dias.'); $('daysToFinish').focus(); return; }
 
-      const elapsedSeconds = Math.floor(currentElapsedMs()/1000);
+  const pagesRemaining = totalPages - pagesRead;
+  const minutesSample = elapsedSeconds / 60;
+  const pagesPerMin = samplePages / minutesSample;
+  const totalMinutes = pagesRemaining / pagesPerMin;
+  const minDay = totalMinutes / days;
+  const pagesDay = pagesRemaining / days;
 
-      if(!samplePages || samplePages<=0){ alert('Enter pages read during timer.'); $('samplePages').focus(); return; }
-      if(elapsedSeconds<=0){ alert('Run the timer for a sample.'); return; }
-      if(!totalPages||totalPages<=0){ alert('Enter total pages.'); $('totalPages').focus(); return; }
-      if(pagesRead<0||pagesRead>=totalPages){ alert('Pages already read must be >=0 and < total pages'); return; }
-      if(!days||days<1){ alert('Enter number of days.'); $('daysToFinish').focus(); return; }
-
-      const pagesRemaining = totalPages - pagesRead;
-      const minutesSample = elapsedSeconds / 60;
-      const pagesPerMin = samplePages / minutesSample;
-      const totalMinutes = pagesRemaining / pagesPerMin;
-      const minDay = totalMinutes / days;
-      const pagesDay = pagesRemaining / days;
-
-      $('timePerDay').textContent = formatMinutesAsHours(minDay);
-      $('pagesPerDay').textContent = `${Math.ceil(pagesDay)} páginas/dia`;
-    });
+  $('timePerDay').textContent = formatMinutesAsHours(minDay);
+  $('pagesPerDay').textContent = `${Math.ceil(pagesDay)} páginas/dia`;
+});
 
     $('clearBtn').addEventListener('click', ()=>{
       clearInterval(window._interval);
