@@ -138,10 +138,13 @@
 
     function formatMinutesAsHours(min){
       if(!min || min <= 0) return '—';
-      if(min <= 60) return `${Math.round(min)} min/day`;
+      if(min <= 60) return `${Math.round(min)} min/dia`;
       const t = Math.round(min);
-      return `${Math.floor(t/60)} h ${t%60} min/day`;
+      return `${Math.floor(t/60)} h ${t%60} min/dia`;
     }
+
+$('pagesPerDay').textContent = `${Math.ceil(pagesDay)} páginas/dia`;
+
 
     $('calcBtn').addEventListener('click', ()=>{
       const samplePages = parseFloat($('samplePages').value);
@@ -165,7 +168,7 @@
       const pagesDay = pagesRemaining / days;
 
       $('timePerDay').textContent = formatMinutesAsHours(minDay);
-      $('pagesPerDay').textContent = `${Math.ceil(pagesDay)} pages/day`;
+      $('pagesPerDay').textContent = `${Math.ceil(pagesDay)} páginas/dia`;
     });
 
     $('clearBtn').addEventListener('click', ()=>{
